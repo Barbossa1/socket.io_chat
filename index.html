@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+<body>
+<div class="container py-3">
+    <head>
+        <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-4 border-bottom">
+            <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
+                <span class="fs-4">by_Barbossa</span>
+            </a>
+
+            <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
+                <a class="me-3 py-2 text-dark text-decoration-none" href="#">Главная</a>
+                <a class="me-3 py-2 text-dark text-decoration-none" href="#">Про нас</a>
+                <a class="me-3 py-2 text-dark text-decoration-none" href="#">Поддержка</a>
+                <a class="py-2 text-dark text-decoration-none" href="#">Цены</a>
+            </nav>
+        </div>
+        <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+            <h1 class="display-4 fw-normal">Чат программа</h1>
+            <p class="fs-5 text-muted">Укажите ваше имя и начинайте переписку</p>
+        </div>
+    </head>
+    <main>
+        <div class="row row-cols-1 row-cols-md-2 mb-3">
+            <div class="col">
+                <div class="card mb-4 rounded-3 shadow-sm">
+                    <div class="card-header py-3">
+                        <h4 class="my-0 fw-normal text-center">Форма сообщений</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="messForm">
+                            <label for="name">Имя</label>
+                            <input type="text" name="name" id="name" placeholder="Введите имя" class="form-control">
+                            <br>
+                            <label for="message">Сообщение</label>
+                            <textarea name="message" id="message" class="form-control"
+                                      placeholder="Введите сообщение"></textarea>
+                            <br>
+                            <input type="submit" class="w-100 btn btn-lg btn-outline-primary" value="Отправить">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-4 rounded-3 shadow-sm">
+                    <div class="card-header py-3">
+                        <h4 class="my-0 fw-normal text-center">Сообщения</h4>
+                    </div>
+                </div>
+                <div id="all_mess"></div>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+        crossorigin="anonymous"></script>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    let min = 1;
+    let max = 6;
+    let random = Math.floor(Math.random() * (max - min)) + min;
+
+    let alertClass;
+    switch (random) {
+        case 1:
+            alertClass = 'secondary';
+            break;
+        case 2:
+            alertClass = 'danger'
+            break;
+        case 3:
+            alertClass = 'success';
+            break;
+        case 4:
+            alertClass = 'warning'
+            break;
+        case 5:
+            alertClass = 'info';
+            break;
+        case 6:
+            alertClass = 'light'
+            break;
+    }
+
+    $(function () {
+        let socket = io.connect();
+        let $form = $("#messForm");
+        let $name = $("#name");
+        let $textarea = $("#message");
+        let $all_messages = $("#all_mess");
+
+        $form.submit(function (e) {
+            e.preventDefault();
+            socket.emit("send mess", {mess: $textarea.val(), name: $name.val(), className: alertClass});
+            $textarea.val("");
+        });
+
+        socket.on("add mess", function (data) {
+            $all_messages.append("<div class='alert alert-" + data.className + "'><b>" + data.name + "</b>: " + data.mess + "</div>");
+        });
+    });
+</script>
+</html>
