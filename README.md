@@ -1,1 +1,3 @@
-# socket.io_chat
+# Мини чат на socket.io
+npm install
+node index
